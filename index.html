@@ -9,17 +9,22 @@
 
 <div class="nav">
     <div class="flex-row">
-        <a href="#hi">accounts</a>
+        <button id="spotify-login">login</button>
+        <button id="spotify-logout">logout</button>
     </div>
     <hr>
 </div>
 
-<ul id="playlists"></ul>
-
 <script src="https://cdn.jsdelivr.net/gh/JMPerez/spotify-web-api-js/src/spotify-web-api.js"></script>
 <script src="./spotify.js"></script>
 <script>
-    initSpotify();
+    checkSpotifyAuth().then(async (isLoggedIn) => {
+        console.log('user is ' + (!isLoggedIn ? 'not ' : '') + 'logged in');
+        initElements();
+        if (isLoggedIn) {
+            await initSpotify();
+        }
+    })
 </script>
 </body>
 </html>

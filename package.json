@@ -4,7 +4,7 @@
   "description": "multi platform music player",
   "author": "slyk26",
   "scripts": {
-    "start": "http-server --cors public"
+    "start": "http-server --cors public -c-1"
   },
   "dependencies": {
     "http-server": "^14.1.1"
