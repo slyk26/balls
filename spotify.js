@@ -137,11 +137,11 @@ async function checkSpotifyAuth() {
 
     if (currentToken.access_token) {
         spotifyApi.setAccessToken(currentToken.access_token)
-        return true;
+        spotifyState.loggedIn = true;
     }
 
     if (!currentToken.access_token) {
-        return false;
+        spotifyState.loggedIn = false;
     }
 }
 

@@ -18,10 +18,9 @@
 <script src="https://cdn.jsdelivr.net/gh/JMPerez/spotify-web-api-js/src/spotify-web-api.js"></script>
 <script src="./spotify.js"></script>
 <script>
-    checkSpotifyAuth().then(async (isLoggedIn) => {
-        console.log('user is ' + (!isLoggedIn ? 'not ' : '') + 'logged in');
+    checkSpotifyAuth().then(async () => {
         initElements();
-        if (isLoggedIn) {
+        if (spotifyState.loggedIn) {
             await initSpotify();
         }
     })
