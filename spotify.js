@@ -242,8 +242,6 @@ function makePlayer() {
 
         document.getElementById('max_time').innerText = msToMMSS(state.duration);
         document.getElementById('track-slider').max = state.duration;
-
-        console.log(state)
     })
 
     return player;
