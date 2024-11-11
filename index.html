@@ -4,26 +4,91 @@
     <meta charset="UTF-8">
     <title>balls</title>
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous">
 </head>
 <body>
 
 <div class="nav">
     <div class="flex-row">
-        <button id="spotify-login">login</button>
-        <button id="spotify-logout">logout</button>
+        <label class="dropdown">
+            <div id="spotify-dd" class="dd-button">
+            </div>
+            <input type="checkbox" class="dd-input" id="test">
+            <ul id="spotify-menu" class="dd-menu">
+                <li>
+                    <a href="https://spotify.com" target="_blank">Spotify <i class="fa fa-external-link-alt"></i></a>
+                </li>
+                <li class="divider"></li>
+            </ul>
+        </label>
     </div>
     <hr>
 </div>
 
+<div class="vertical-center">
+</div>
+
+<div class="media-controls">
+    <div class="left-side">
+        <div class="spotify-icon">
+            <i id="meta-src-icon" class="fab fa-spotify"></i>
+        </div>
+        <div class="playlist-info">
+            <div id="meta-playlist"></div>
+            <div id="meta-song"></div>
+            <div id="meta-artist"></div>
+        </div>
+    </div>
+
+    <div class="with-bar">
+
+        <div class="track-bar">
+            <div id="curr_time">0:00</div>
+            <input
+                    style="width: 500px"
+                    id="track-slider"
+                    type="range"
+                    class="track-slider"
+                    min="0"
+                    step="1"
+                    oninput="updateTrack(this.value)"
+            />
+            <div id="max_time">9:99</div>
+        </div>
+
+        <div class="control-group">
+            <button class="control-button" onclick="previousTrack()"><i class="fa fa-fast-backward"></i></button>
+            <button class="control-button play-button" onclick="togglePlayPause()"><i id="playpause"
+                                                                                      class="fa fa-play"></i></button>
+            <button class="control-button" onclick="nextTrack()"><i class="fa fa-fast-forward"></i></button>
+        </div>
+
+    </div>
+
+    <div class="volume-container">
+        <span><i class="fa fa-volume-up"></i></span>
+        <input
+                id="volume-slider"
+                type="range"
+                class="volume-slider"
+                min="0"
+                max="1"
+                step="0.005"
+                oninput="updateVolume(this.value)"
+        />
+    </div>
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/gh/JMPerez/spotify-web-api-js/src/spotify-web-api.js"></script>
+<script src="https://sdk.scdn.co/spotify-player.js"></script>
 <script src="./spotify.js"></script>
 <script>
-    checkSpotifyAuth().then(async () => {
-        initElements();
-        if (spotifyState.loggedIn) {
+    window.onSpotifyWebPlaybackSDKReady = () => {
+        checkSpotifyAuth().then(async () => {
             await initSpotify();
-        }
-    })
+        })
+    }
 </script>
 </body>
 </html>

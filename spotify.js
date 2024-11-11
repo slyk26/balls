@@ -3,17 +3,17 @@ const redirectUrl = 'http://localhost:8080';
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
-const scope = 'user-read-private user-read-email';
+const scope = 'streaming playlist-read-private user-read-playback-position user-library-read user-read-playback-state user-modify-playback-state';
 const spotifyApi = new SpotifyWebApi();
 
 const spotifyState = {
     user: {},
-    playlists: {},
     loggedIn: false,
+    player: {},
+    playerLoaded: false,
 }
 
-// Data structure that manages the current active token, caching it in localStorage
-const currentToken = {
+const localdata = {
     get access_token() {
         return localStorage.getItem('access_token') || null;
     },
@@ -26,8 +26,11 @@ const currentToken = {
     get expires() {
         return localStorage.getItem('expires') || null
     },
+    get volume() {
+        return localStorage.getItem('volume') || null
+    },
 
-    save: function (response) {
+    saveTokens: function (response) {
         const {access_token, refresh_token, expires_in} = response;
         localStorage.setItem('access_token', access_token);
         localStorage.setItem('refresh_token', refresh_token);
@@ -35,6 +38,10 @@ const currentToken = {
 
         const now = new Date();
         localStorage.setItem('expires', new Date(now.getTime() + (expires_in * 1000)).toString());
+    },
+
+    saveVolume(volume) {
+        localStorage.setItem('volume', volume);
     }
 };
 
@@ -63,10 +70,9 @@ async function redirectToSpotifyAuthorize() {
     };
 
     authUrl.search = new URLSearchParams(params).toString();
-    window.location.href = authUrl.toString(); // Redirect the user to the authorization server for login
+    window.location.href = authUrl.toString();
 }
 
-// Soptify API Calls
 async function getToken(code) {
     const code_verifier = localStorage.getItem('code_verifier');
 
@@ -96,7 +102,7 @@ async function refreshToken() {
         body: new URLSearchParams({
             client_id: clientId,
             grant_type: 'refresh_token',
-            refresh_token: currentToken.refresh_token
+            refresh_token: localdata.refresh_token
         }),
     });
 
@@ -113,11 +119,12 @@ async function logout() {
 }
 
 async function updateRefreshToken() {
-    if (currentToken.refresh_token != null) {
+    if (localdata.refresh_token != null) {
         console.log('updating token...');
         const token = await refreshToken();
-        currentToken.save(token);
+        localdata.saveTokens(token);
     }
+    return localdata.access_token;
 }
 
 async function checkSpotifyAuth() {
@@ -126,7 +133,7 @@ async function checkSpotifyAuth() {
 
     if (code) {
         const token = await getToken(code);
-        currentToken.save(token);
+        localdata.saveTokens(token);
 
         const url = new URL(window.location.href);
         url.searchParams.delete("code");
@@ -135,28 +142,153 @@ async function checkSpotifyAuth() {
         window.history.replaceState({}, document.title, updatedUrl);
     }
 
-    if (currentToken.access_token) {
-        spotifyApi.setAccessToken(currentToken.access_token)
+    if (localdata.access_token) {
+        spotifyApi.setAccessToken(localdata.access_token)
         spotifyState.loggedIn = true;
     }
 
-    if (!currentToken.access_token) {
+    if (!localdata.access_token) {
         spotifyState.loggedIn = false;
     }
 }
 
-function initElements(){
-    document.getElementById('spotify-login').addEventListener('click', async () => {
-        await login();
-    });
-    document.getElementById('spotify-logout').addEventListener('click', async () => {
-        await logout();
-    })
+function initElements() {
+    const menu = document.getElementById('spotify-menu');
+    if (spotifyState.loggedIn) {
+        menu.appendChild(menuButton('spotify-logout', 'Logout', logout));
+    } else {
+        menu.appendChild(menuButton('spotify-login', 'Login', login));
+    }
+}
+
+function menuButton(id, text, listener) {
+    const b = document.createElement('li');
+    b.id = id;
+    b.innerText = text;
+    if (listener) {
+        b.addEventListener('click', async () => {
+            await listener();
+        });
+    }
+    return b;
 }
 
 async function initSpotify() {
+    const dd = document.getElementById('spotify-dd')
+
     setInterval(updateRefreshToken, 45 * 60 * 1000); // 45 minutes
 
-    spotifyState.user = await spotifyApi.getMe();
-    console.log(spotifyState)
+    try {
+        spotifyState.user = await spotifyApi.getMe();
+    } catch (e) {
+        spotifyState.loggedIn = false;
+    }
+
+    if (spotifyState.loggedIn) {
+        dd.innerHTML = `<i style="color: #1DB954" class="fab fa-spotify"</i>` + ' ' + spotifyState.user['display_name'];
+        spotifyState.player = makePlayer();
+        spotifyState.player.connect();
+    } else {
+        dd.innerHTML = `<i style="color: red" class="fab fa-spotify"</i>` + ' ' + 'Add Spotify'
+    }
+    initElements();
+}
+
+function makePlayer() {
+    const volume = parseFloat(localdata.volume) || 0;
+    document.getElementById('volume-slider').value = volume;
+    const player = new Spotify.Player({
+        name: 'balls',
+        getOAuthToken: cb => {
+            updateRefreshToken().then(access_token => {
+                cb(access_token)
+            })
+        },
+        volume: volume
+    });
+
+    // Ready
+    player.addListener('ready', ({device_id}) => {
+        fetch('https://api.spotify.com/v1/me/player', {
+            method: 'PUT',
+            body: JSON.stringify({
+                device_ids: [device_id],
+                play: false
+            }),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localdata.access_token}`
+            }
+        });
+        spotifyState.playerLoaded = true;
+    });
+
+    player.addListener('progress', pos_data => {
+        document.getElementById('curr_time').innerText = msToMMSS(pos_data.position);
+        document.getElementById('track-slider').value = pos_data.position;
+    })
+    player.addListener('autoplay_failed', () => {
+        console.log('Autoplay is not allowed by the browser autoplay rules');
+    });
+
+    player.addListener('player_state_changed', state => {
+        updateMetadata(state.context.metadata.context_description, state.track_window.current_track.name, state.track_window.current_track.artists.map(artist => artist.name).join(', '))
+        const pp = document.getElementById('playpause');
+        if(state.paused){
+            pp.classList.replace('fa-pause', 'fa-play')
+        } else {
+            pp.classList.replace('fa-play', 'fa-pause')
+        }
+
+        document.getElementById('max_time').innerText = msToMMSS(state.duration);
+        document.getElementById('track-slider').max = state.duration;
+
+        console.log(state)
+    })
+
+    return player;
+}
+
+function togglePlayPause() {
+    if(!!!spotifyState.playerLoaded) return;
+
+    spotifyState.player.togglePlay();
+
+    const b = document.getElementById('playpause');
+        b.classList.toggle('fa-play');
+        b.classList.toggle('fa-pause');
+}
+
+function previousTrack() {
+    if(!!!spotifyState.playerLoaded) return;
+
+    spotifyState.player.previousTrack();
+}
+
+function nextTrack() {
+    if(!!!spotifyState.playerLoaded) return;
+
+    spotifyState.player.nextTrack();
+}
+
+function updateVolume(volume) {
+    localdata.saveVolume(volume);
+    spotifyState.player.setVolume(volume);
+}
+
+function updateTrack(track_ms) {
+    spotifyState.player.seek(track_ms);
+}
+
+function updateMetadata(playlist, song, artists){
+    document.getElementById('meta-playlist').innerHTML = playlist || '';
+    document.getElementById('meta-song').innerHTML = song;
+    document.getElementById('meta-artist').innerHTML = artists;
+}
+
+function msToMMSS(ms) {
+    const seconds = Math.floor(ms / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const secondsRemaining = seconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${secondsRemaining.toString().padStart(2, '0')}`;
 }
