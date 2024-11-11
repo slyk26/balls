@@ -1,5 +1,5 @@
 const clientId = '7257603b361940308bc1c93da610767e';
-const redirectUrl = 'http://localhost:8080';
+const redirectUrl = localStorage.getItem('devURL') || 'https://slyk26.github.io/balls';
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
