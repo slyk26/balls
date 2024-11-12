@@ -22,6 +22,13 @@ a:hover {
     gap: 20px;
 }
 
+.center-row {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
 .vertical-center {
     position: relative;
     top: 50%;
@@ -82,7 +89,7 @@ a:hover {
 .dd-menu {
     position: absolute;
     top: 100%;
-    border: 1px solid #ccc;
+    border: 1px solid #aaa;
     border-radius: 4px;
     padding: 0;
     margin: 2px 0 0 0;
@@ -150,7 +157,7 @@ a:hover {
 }
 
 /* Playlist info text */
-.playlist-info {
+.meta {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -198,7 +205,7 @@ a:hover {
     height: 100%;
 }
 
-.playlist-info > div {
+.meta > div {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -216,4 +223,68 @@ a:hover {
     display: flex;
     align-items: center;
     gap: 5px;
+}
+
+#search-container {
+    position: relative;
+    width: 500px;
+}
+
+#search-input {
+    border: 1px solid gray;
+    border-radius: 30px;
+    width: 100%;
+    padding: 8px 16px;
+    box-sizing: border-box;
+}
+
+#search-input:focus, #search-input:hover {
+    outline: none;
+    border: 1px solid #2e8b8b;
+}
+
+#search-input:hover::placeholder, #search-input:focus::placeholder {
+    color: #2e8b8b;
+}
+
+#suggestions {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    border: 1px solid #aaa;
+    border-top: none;
+    max-height: 150px;
+    overflow-y: auto;
+    background-color: white;
+    display: none;
+    z-index: 1000;
+}
+
+.dropdown-option {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.dropdown-option:hover {
+    background-color: #2e8b8b;
+}
+
+input[type=range] {
+    accent-color: #2e8b8b;
+}
+
+#suggestions::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: #2e8b8b;
+}
+
+#suggestions::-webkit-scrollbar {
+    width: 5px;
+    background-color: #2e8b8b;
+}
+
+#suggestions::-webkit-scrollbar-thumb {
+    background-color: #333;
 }

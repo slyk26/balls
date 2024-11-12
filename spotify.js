@@ -232,7 +232,7 @@ function makePlayer() {
     });
 
     player.addListener('player_state_changed', state => {
-        updateMetadata(state.context.metadata.context_description, state.track_window.current_track.name, state.track_window.current_track.artists.map(artist => artist.name).join(', '))
+        updateMetadata(state.track_window.current_track.name, state.track_window.current_track.artists.map(artist => artist.name).join(', '))
         const pp = document.getElementById('playpause');
         if(state.paused){
             pp.classList.replace('fa-pause', 'fa-play')
@@ -278,8 +278,7 @@ function updateTrack(track_ms) {
     spotifyState.player.seek(track_ms);
 }
 
-function updateMetadata(playlist, song, artists){
-    document.getElementById('meta-playlist').innerHTML = playlist || '';
+function updateMetadata(song, artists){
     document.getElementById('meta-song').innerHTML = song;
     document.getElementById('meta-artist').innerHTML = artists;
 }

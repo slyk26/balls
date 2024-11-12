@@ -25,16 +25,20 @@
     <hr>
 </div>
 
-<div class="vertical-center">
+<div class="center-row">
+    <div id="search-container">
+        <input class="fa" type="text" id="search-input" placeholder="&#xF002;  search...">
+        <div id="suggestions"></div>
+    </div>
 </div>
+
 
 <div class="media-controls">
     <div class="left-side">
         <div class="spotify-icon">
             <i id="meta-src-icon" class="fab fa-spotify"></i>
         </div>
-        <div class="playlist-info">
-            <div id="meta-playlist"></div>
+        <div class="meta">
             <div id="meta-song"></div>
             <div id="meta-artist"></div>
         </div>
@@ -83,6 +87,7 @@
 <script src="https://cdn.jsdelivr.net/gh/JMPerez/spotify-web-api-js/src/spotify-web-api.js"></script>
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
 <script src="./spotify.js"></script>
+<script src="./searchbar.js"></script>
 <script>
     window.onSpotifyWebPlaybackSDKReady = () => {
         checkSpotifyAuth().then(async () => {
