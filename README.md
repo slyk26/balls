@@ -4,7 +4,7 @@ ___
 
 ### features:
 * fully clientside javascript application
-* create
+* create one playlist with your favorite songs across platforms
 
 ### how to use:
 
@@ -19,7 +19,7 @@ ___
 
 * [ ] add youtube playlist support
 * [ ] soundcloud support
-* [ ] get out of development mode
+* [ ] get out of spotify development mode (check requirements)
 * [ ] import/export/save playlist created by balls
 * [ ] icons in the searchbar to show if playlist/song and which platform it is from
 * [ ] polish the source code
