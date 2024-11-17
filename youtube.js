@@ -138,7 +138,11 @@ async function searchVideo(searchQuery) {
     const options = {type: "video", limit: 0};
 
 
-    const searchRes = await fetch(`${YOUTUBE_URL}/results?q=${encodeURIComponent(searchQuery.trim())}&hl=en`);
+    const searchRes = await fetch(`${YOUTUBE_URL}/results?q=${encodeURIComponent(searchQuery.trim())}&hl=en`,{
+        method: 'GET',
+        crossorigin: true,
+        mode: 'no-cors',
+    });
     let html = await searchRes.text();
     // try to parse html
     try {
