@@ -5,15 +5,16 @@
     <title>balls</title>
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.1/css/all.css" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
-
 <div class="nav">
     <div class="flex-row">
         <label class="dropdown">
             <div id="spotify-dd" class="dd-button">
             </div>
-            <input type="checkbox" class="dd-input" id="test">
+            <input type="checkbox" class="dd-input">
             <ul id="spotify-menu" class="dd-menu">
                 <li>
                     <a href="https://spotify.com" target="_blank">Spotify <i class="fa fa-external-link-alt"></i></a>
@@ -21,22 +22,61 @@
                 <li class="divider"></li>
             </ul>
         </label>
+        <!--<label class="dropdown">
+            <div id="soundcloud-dd" class="dd-button">
+            </div>
+            <input type="checkbox" class="dd-input">
+            <ul id="soundcloud-menu" class="dd-menu">
+                <li>
+                    <a href="https://soundcloud.com/discover" target="_blank">SoundCloud <i class="fa fa-external-link-alt"></i></a>
+                </li>
+                <li class="divider"></li>
+            </ul>
+        </label>-->
+        <label class="dropdown">
+            <div id="yt-dd" class="dd-button">
+            </div>
+            <input type="checkbox" class="dd-input">
+            <ul id="yt-menu" class="dd-menu">
+                <li>
+                    <a href="https://youtube.com" target="_blank">YouTube <i class="fa fa-external-link-alt"></i></a>
+                </li>
+                <li class="divider"></li>
+            </ul>
+        </label>
+
+
+            <div class="center-row">
+                <div id="search-container">
+                    <input type="text" id="search-input" placeholder="search...">
+                    <div id="suggestions"></div>
+                </div>
+            </div>
     </div>
     <hr>
 </div>
 
-<div class="center-row">
-    <div id="search-container">
-        <input type="text" id="search-input" placeholder="search...">
-        <div id="suggestions"></div>
-    </div>
-</div>
+<!-- woah it's over 9000 pixels left! -->
+<div style="position:absolute; left: -9001px" id="video-placeholder"></div>
 
+<div class="table-row">
+    <table border="1" frame="void" id="queue" style="width:100%">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>song</th>
+            <th>artist</th>
+            <th>#</th>
+        </tr>
+        </thead>
+        <tbody id="queue-body">
+        </tbody>
+    </table>
+</div>
 
 <div class="media-controls">
     <div class="left-side">
-        <div class="spotify-icon">
-            <i id="meta-src-icon" class="fab fa-spotify"></i>
+        <div id="meta-source" class="source-icon">
         </div>
         <div class="meta">
             <div id="meta-song"></div>
@@ -44,8 +84,7 @@
         </div>
     </div>
 
-    <div class="with-bar">
-
+    <div class="with-bar center-row">
         <div class="track-bar">
             <div id="curr_time">0:00</div>
             <input
@@ -55,16 +94,18 @@
                     class="track-slider"
                     min="0"
                     step="1"
-                    oninput="updateTrack(this.value)"
+                    oninput="seekTrack(this.value)"
             />
-            <div id="max_time">9:99</div>
+            <div id="max_time">0:00</div>
         </div>
 
         <div class="control-group">
+            <!--<button class="control-button" title="clear WHOLE playlist" id="clear" onclick="clear()"><i class="fa fa-trash"></i></button>-->
             <button class="control-button" onclick="previousTrack()"><i class="fa fa-fast-backward"></i></button>
             <button class="control-button play-button" onclick="togglePlayPause()"><i id="playpause"
                                                                                       class="fa fa-play"></i></button>
             <button class="control-button" onclick="nextTrack()"><i class="fa fa-fast-forward"></i></button>
+            <!--<button class="control-button" title="shuffle playlist" id="shuffle" onclick="shuffle()"><i class="fa fa-random"></i></button>-->
         </div>
 
     </div>
@@ -83,17 +124,57 @@
     </div>
 </div>
 
-
+<script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/gh/JMPerez/spotify-web-api-js/src/spotify-web-api.js"></script>
 <script src="https://sdk.scdn.co/spotify-player.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script type="text/javascript" src="./utils.js"></script>
+<script type="text/javascript" src="./player.js"></script>
 <script src="./spotify.js"></script>
+<!--<script src="https://connect.soundcloud.com/sdk/sdk-3.3.2.js"></script>-->
+<!--<script src="./soundcloud.js"></script>-->
+<script src="https://www.youtube.com/iframe_api"></script>
+<script src="./youtube.js"></script>
 <script src="./searchbar.js"></script>
 <script>
+    // SPOTIFY
     window.onSpotifyWebPlaybackSDKReady = () => {
         checkSpotifyAuth().then(async () => {
             await initSpotify();
         })
     }
+
+    // SC
+    // initSoundcloud();
+
+    // YT
+    initYoutube();
+
+
+    const dataTable = new simpleDatatables.DataTable("#queue", {
+        searchable: false,
+        sortable: false,
+        paging: false,
+        tableRender: (data, table, type) => {
+            // console.log(data, table, type)
+            highlightCurrentTrack();
+        }
+    });
+
+    dataTable.setMessage('unified music player');
+
+    dataTable.on("datatable.selectrow", (rowIndex, event) => {
+        event.preventDefault();
+
+        if(event.target.className === 'fa fa-trash'){
+            if(event.type === 'mousedown') {
+                deleteTrack(rowIndex);
+            }
+        } else {
+            playInQueue(rowIndex);
+        }
+    });
+
 </script>
 </body>
 </html>
