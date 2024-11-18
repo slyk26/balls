@@ -168,6 +168,10 @@ a:hover {
     height: 100%;
 }
 
+.left-side:hover > div > i {
+    text-decoration: none;
+}
+
 /* Spotify icon styling */
 .source-icon {
     font-size: 20px; /* Adjust icon size */
@@ -237,6 +241,7 @@ a:hover {
     align-items: center;
     flex-direction: column;
     justify-content: space-evenly;
+    z-index: -1;
 }
 
 .track-bar {
@@ -273,9 +278,8 @@ a:hover {
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    border: 1px solid #aaa;
-    border-top: none;
-    max-height: 300px;
+    border-radius: 4px;
+    max-height: 400px;
     overflow-y: auto;
     background-color: white;
     display: none;
@@ -332,6 +336,10 @@ tr:hover td {
     background-color: #333;
 }
 
-.fa-trash:hover {
+.fa-trash:hover, #clear:hover * {
     color: red !important;
+}
+
+#shuffle {
+    transition: transform 0.5s ease;
 }

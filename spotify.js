@@ -159,16 +159,7 @@ async function checkSpotifyAuth() {
     }
 }
 
-function initSpotifyElements() {
-    const menu = document.getElementById('spotify-menu');
-    if (spotifyState.loggedIn) {
-        menu.appendChild(menuButton('spotify-logout', 'Logout', logout));
-    } else {
-        menu.appendChild(menuButton('spotify-login', 'Login', login));
-    }
-}
-
-async function initSpotify() {
+async function initSpotifyElements() {
     const dd = document.getElementById('spotify-dd')
 
     setInterval(updateRefreshToken, 45 * 60 * 1000); // 45 minutes
@@ -186,7 +177,21 @@ async function initSpotify() {
     } else {
         dd.innerHTML = `<i style="color: #B24C4C" class="fab fa-spotify"</i>`
     }
-    initSpotifyElements();
+
+    const menu = document.getElementById('spotify-menu');
+    if (spotifyState.loggedIn) {
+        menu.appendChild(menuButton('spotify-logout', 'Logout', logout));
+    } else {
+        menu.appendChild(menuButton('spotify-login', 'Login', login));
+    }
+}
+
+function initSpotify() {
+    window.onSpotifyWebPlaybackSDKReady = () => {
+        checkSpotifyAuth().then(async () => {
+            await initSpotifyElements();
+        })
+    }
 }
 
 function makePlayer() {
@@ -195,9 +200,7 @@ function makePlayer() {
     const player = new Spotify.Player({
         name: 'balls',
         getOAuthToken: cb => {
-            updateRefreshToken().then(access_token => {
-                cb(access_token)
-            })
+            cb(localdata.access_token);
         },
         volume: volume
     });

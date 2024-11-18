@@ -1,70 +1,10 @@
-const toastTime = 2000;
 
-function infoToast(msg, ms) {
-    Toastify({
-        text: msg,
-        duration: ms || toastTime,
-        close: true,
-        gravity: "top",
-        position: "right",
-        stopOnFocus: true,
-        style: {
-            background: '#2e8b8b'
-        },
-        onClick: function () {
-        } // Callback after click
-    }).showToast();
-}
-
-function errorToast(msg, ms) {
-    Toastify({
-        text: msg,
-        duration: ms || toastTime,
-        close: true,
-        gravity: "top",
-        position: "right",
-        stopOnFocus: true,
-        style: {
-            background: '#B24C4C'
-        },
-        onClick: function () {
-        } // Callback after click
-    }).showToast();
-}
-
-function warnToast(msg, ms) {
-    Toastify({
-        text: msg,
-        duration: ms || toastTime,
-        close: true,
-        gravity: "top",
-        position: "right",
-        stopOnFocus: true,
-        style: {
-            background: '#D1C74C'
-        },
-        onClick: function () {
-        } // Callback after click
-    }).showToast();
-}
 
 function msToMMSS(ms) {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
     const secondsRemaining = seconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${secondsRemaining.toString().padStart(2, '0')}`;
-}
-
-function menuButton(id, text, listener) {
-    const b = document.createElement('li');
-    b.id = id;
-    b.innerText = text;
-    if (listener) {
-        b.addEventListener('click', async () => {
-            await listener();
-        });
-    }
-    return b;
 }
 
 function debounce(func, delay) {
@@ -75,35 +15,29 @@ function debounce(func, delay) {
     };
 }
 
-
-function addToQueue(track) {
-    queue.push(track);
-    dataTable.rows.add([`<i style="background: none" class="fab fa-${track.src.toLowerCase()}"></i>`, track.title, track.owner, `<i style="background: none" class="fa fa-trash"></i>`]);
+function createArray(n) {
+    return Array.from({ length: n + 1 }, (_, i) => i);
 }
 
-function highlightCurrentTrack() {
-    blank();
-    colorRow(queuePos, '#2e8b8b');
-}
+function shuffleArrayWithFixedElement(arr, fixedIndex) {
+    const arrayCopy = [...arr];
+    const fixedElement = arrayCopy[fixedIndex];
 
-function blank() {
-    const rows = document.querySelectorAll('tr');
+    arrayCopy.splice(fixedIndex, 1);
 
-    for (let i = 0; i < rows.length; i++) {
-        const cells = rows[i].querySelectorAll('*');
-        cells.forEach(cell => {
-            cell.style.color = 'white';
-        });
+    for (let i = arrayCopy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arrayCopy[i], arrayCopy[j]] = [arrayCopy[j], arrayCopy[i]];
     }
+
+    arrayCopy.splice(fixedIndex, 0, fixedElement);
+    return arrayCopy;
 }
 
-function colorRow(idx, color) {
-    const row = document.querySelector(`tr[data-index="${idx}"]`);
+function convertTrackToColumn(track){
+    return [`<i style="background: none" class="fab fa-${track.src.toLowerCase()}"></i>`, track.title, track.owner, `<i style="background: none" class="fa fa-trash"></i>`]
+}
 
-    if (row) {
-        const cells = row.querySelectorAll('*');
-        cells.forEach(cell => {
-            cell.style.color = color;
-        });
-    }
+function openGH() {
+    window.open('https://github.com/slyk26', '_blank');
 }

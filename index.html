@@ -22,44 +22,17 @@
                 <li class="divider"></li>
             </ul>
         </label>
-        <!--<label class="dropdown">
-            <div id="soundcloud-dd" class="dd-button">
+        <div class="center-row">
+            <div id="search-container">
+                <input type="text" id="search-input" autocomplete="off" placeholder="search...">
+                <div id="suggestions"></div>
             </div>
-            <input type="checkbox" class="dd-input">
-            <ul id="soundcloud-menu" class="dd-menu">
-                <li>
-                    <a href="https://soundcloud.com/discover" target="_blank">SoundCloud <i class="fa fa-external-link-alt"></i></a>
-                </li>
-                <li class="divider"></li>
-            </ul>
-        </label>-->
-        <label class="dropdown">
-            <div id="yt-dd" class="dd-button">
-            </div>
-            <input type="checkbox" class="dd-input">
-            <ul id="yt-menu" class="dd-menu">
-                <li>
-                    <a href="https://youtube.com" target="_blank">YouTube <i class="fa fa-external-link-alt"></i></a>
-                </li>
-                <li class="divider"></li>
-            </ul>
-        </label>
-
-
-            <div class="center-row">
-                <div id="search-container">
-                    <input type="text" id="search-input" placeholder="search...">
-                    <div id="suggestions"></div>
-                </div>
-            </div>
+        </div>
     </div>
     <hr>
 </div>
 
-<!-- woah it's over 9000 pixels left! -->
-<div style="position:absolute; left: -9001px" id="video-placeholder"></div>
-
-<div class="table-row">
+<div class="table-row" style="position: absolute; z-index: -1">
     <table border="1" frame="void" id="queue" style="width:100%">
         <thead>
         <tr>
@@ -75,7 +48,7 @@
 </div>
 
 <div class="media-controls">
-    <div class="left-side">
+    <div id="meta-box" class="left-side">
         <div id="meta-source" class="source-icon">
         </div>
         <div class="meta">
@@ -100,12 +73,13 @@
         </div>
 
         <div class="control-group">
-            <!--<button class="control-button" title="clear WHOLE playlist" id="clear" onclick="clear()"><i class="fa fa-trash"></i></button>-->
+            <button class="control-button" id="idk" onclick="openGH()"><i class="fab fa-github"></i></button>
+            <button class="control-button" id="clear" onclick="reset()"><i class="fa fa-trash"></i></button>
             <button class="control-button" onclick="previousTrack()"><i class="fa fa-fast-backward"></i></button>
-            <button class="control-button play-button" onclick="togglePlayPause()"><i id="playpause"
-                                                                                      class="fa fa-play"></i></button>
+            <button class="control-button play-button" onclick="togglePlayPause()"><i id="playpause" class="fa fa-play"></i></button>
             <button class="control-button" onclick="nextTrack()"><i class="fa fa-fast-forward"></i></button>
-            <!--<button class="control-button" title="shuffle playlist" id="shuffle" onclick="shuffle()"><i class="fa fa-random"></i></button>-->
+            <button class="control-button" id="shuffle" onclick="shuffle()"><i class="fa fa-random"></i></button>
+            <button class="control-button" id="goTo" onclick="followTrack()"><i class="fa fa-crosshairs"></i></button>
         </div>
 
     </div>
@@ -130,51 +104,11 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script type="text/javascript" src="./utils.js"></script>
 <script type="text/javascript" src="./player.js"></script>
+<script type="text/javascript" src="./gui.js"></script>
 <script src="./spotify.js"></script>
-<!--<script src="https://connect.soundcloud.com/sdk/sdk-3.3.2.js"></script>-->
-<!--<script src="./soundcloud.js"></script>-->
-<script src="https://www.youtube.com/iframe_api"></script>
-<script src="./youtube.js"></script>
 <script src="./searchbar.js"></script>
 <script>
-    // SPOTIFY
-    window.onSpotifyWebPlaybackSDKReady = () => {
-        checkSpotifyAuth().then(async () => {
-            await initSpotify();
-        })
-    }
-
-    // SC
-    // initSoundcloud();
-
-    // YT
-    initYoutube();
-
-
-    const dataTable = new simpleDatatables.DataTable("#queue", {
-        searchable: false,
-        sortable: false,
-        paging: false,
-        tableRender: (data, table, type) => {
-            // console.log(data, table, type)
-            highlightCurrentTrack();
-        }
-    });
-
-    dataTable.setMessage('unified music player');
-
-    dataTable.on("datatable.selectrow", (rowIndex, event) => {
-        event.preventDefault();
-
-        if(event.target.className === 'fa fa-trash'){
-            if(event.type === 'mousedown') {
-                deleteTrack(rowIndex);
-            }
-        } else {
-            playInQueue(rowIndex);
-        }
-    });
-
+    initSpotify();
 </script>
 </body>
 </html>

@@ -9,10 +9,9 @@ async function fetchData(query) {
 
     try {
         await fetchSpotify(query)
-        await fetchYoutube(query)
         populateDatalist(query);
     } catch (error) {
-        console.error("Error fetching data:", error);
+        errorToast("search failed", 5000)
     }
 }
 
@@ -30,15 +29,6 @@ async function fetchSpotify(query) {
     })
 }
 
-async function fetchYoutube(query) {
-    if (!!!ytData.disabled) return;
-    const data = await searchVideo(query);
-
-    data.forEach(video => {
-        suggestions[video.title + ' - ' + video.owner] = youtubeToTrack(video)
-    })
-}
-
 function populateDatalist(query) {
     for (const key in suggestions) {
         const option = document.createElement('div');
@@ -50,19 +40,18 @@ function populateDatalist(query) {
 
     sortSuggestions(query)
     dropdown.style.display = dropdown.children.length > 0 ? 'block' : 'none';
-    dropdown.style['border'] = 'none';
+    dropdown.style.border = '1px solid #aaa';
 }
 
 function selectOption(key) {
     input.value = '';
     dropdown.style.display = 'none';
     dropdown.style.border = 'none'
-
-    var data = suggestions[key];
+    const data = suggestions[key];
 
     if (data.src === 'SPOTIFY' && data.type === 'playlist') {
         spotifyApi.getPlaylistTracks(data.id).then(playlist => {
-            if(playlist.items.length === 0){
+            if (playlist.items.length === 0) {
                 warnToast('playlist does not return any songs');
             }
             playlist.items.forEach(item => {
@@ -71,15 +60,14 @@ function selectOption(key) {
         });
         return;
     }
-
     addTrack(data);
 }
 
-
-const debouncedFetchData = debounce(fetchData, 400);
+const debouncedFetchData = debounce(fetchData, 200);
 
 document.getElementById('search-input').addEventListener('input', (event) => {
     const query = event.target.value;
+    dropdown.style.border = 'none'
     dropdown.innerHTML = ''
     debouncedFetchData(query);
 });

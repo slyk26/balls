@@ -1,9 +1,9 @@
-const queue = [];
+let queue = [];
 let queuePos = -1;
 let currentTrack;
 let busy = false;
 
-// track needs {id, title, owner, src, type}
+// track needs {id, title, owner, src, type, }
 
 function spotifyToTrack(s) {
     return {
@@ -11,23 +11,43 @@ function spotifyToTrack(s) {
         title: s.name,
         owner: s.artists.map(a => a.name).join(', '),
         src: 'SPOTIFY',
-        type: s.type
-    }
-}
+        type: s.type,
+        ext_song: s.external_urls.spotify,
+        ext_artists: s.artists,
+        execute: function() {
+            spotifyApi.play({uris: [this.id]}).then(() => {
+                busy = false;
+                updatePlayPauseIcon(false);
+            }).catch(() => {
+                spotifyApi.transferMyPlayback([spotifyState.deviceId]).then(() => {
+                    this.play();
+                })
+            })
+        },
+        play: function() {
+            if (!!!spotifyState.playerLoaded || this.type !== 'track') return;
+            spotifyState.player.resume().then(() => updatePlayPauseIcon(false));
+        },
+        pause: function(guiUpdate) {
+            if (!!!spotifyState.playerLoaded || this.type !== 'track') return;
+            spotifyState.player.pause().then(() => {
+                    if (guiUpdate)
+                        updatePlayPauseIcon(true);
+                }
+            );
+        },
+       isPaused: async function() {
+           return (await spotifyApi.getMyCurrentPlaybackState()).is_playing === false;
+       },
 
-function youtubeToTrack(y) {
-    return {
-        id: y.id.videoId,
-        title: y.title,
-        owner: y.owner,
-        src: 'YOUTUBE',
-    }
-}
+       setVolume: function(volume) {
+           spotifyState.player.setVolume(volume);
+       },
 
-function updateMetadata(track) {
-    document.getElementById('meta-song').innerHTML = track?.title || '';
-    document.getElementById('meta-artist').innerHTML = track?.owner || '';
-    document.getElementById('meta-source').innerHTML = `<i id="meta-src-icon" class="fab fa-${track?.src?.toLowerCase()}"></i>`;
+        seek: function(target_ms) {
+            spotifyState.player.seek(target_ms);
+        }
+    }
 }
 
 function addTrack(track) {
@@ -44,41 +64,24 @@ function addTrack(track) {
 }
 
 function playTrack(track) {
-    switch (track.src) {
-        case 'SPOTIFY':
-            spotifyApi.play({uris: [track.id]}).then(() => {
-                busy = false;
-                updatePlayPauseIcon(false);
-            }).catch(() => {
-                spotifyApi.transferMyPlayback([spotifyState.deviceId]).then(() => {
-                    playTrack(track);
-                })
-            })
-            break;
-        case 'YOUTUBE':
-            ytPlayer.loadVideoById({'videoId': track.id});
-            busy = false;
-            updateVolume(localdata.volume)
-            updatePlayPauseIcon(false);
-            break;
-    }
-
+    track.execute();
 }
 
 async function togglePlayPause() {
     if (!currentTrack) return;
 
-    if (await isPaused()) {
-        await play();
+    if (await currentTrack.isPaused()) {
+        currentTrack.play();
     } else {
-        await pause(true);
+        currentTrack.pause(true);
     }
 }
 
 const debouncedPlay = debounce(() => {
     playTrack(currentTrack);
     highlightCurrentTrack()
-}, 300)
+    followTrack();
+}, 200)
 
 function nextTrack() {
     if (queuePos === queue.length - 1) {
@@ -86,7 +89,7 @@ function nextTrack() {
     }
 
     queuePos += 1;
-    pause(true);
+    currentTrack.pause(true);
     currentTrack = queue[queuePos];
     updateMetadata(currentTrack);
     debouncedPlay();
@@ -98,54 +101,12 @@ function previousTrack() {
     }
 
     queuePos -= 1;
-    pause(false);
+    currentTrack.pause(false);
     currentTrack = queue[queuePos];
     updateMetadata(currentTrack);
     debouncedPlay()
 }
 
-function play() {
-    switch (currentTrack.src) {
-        case 'SPOTIFY':
-            if (!!!spotifyState.playerLoaded) return;
-            spotifyState.player.resume().then(() => updatePlayPauseIcon(false));
-            break;
-        case 'YOUTUBE':
-            ytPlayer.playVideo();
-            updateVolume(localdata.volume);
-            updatePlayPauseIcon(false);
-            break;
-    }
-}
-
-function pause(guiUpdate) {
-    switch (currentTrack.src) {
-        case 'SPOTIFY':
-            if (!!!spotifyState.playerLoaded) return;
-            spotifyState.player.pause().then(() => {
-                    if (guiUpdate)
-                        updatePlayPauseIcon(true);
-                }
-            );
-            break;
-        case 'YOUTUBE':
-            ytPlayer.pauseVideo();
-            if (guiUpdate)
-                updatePlayPauseIcon(true);
-            break;
-    }
-}
-
-async function isPaused() {
-    if (!currentTrack) return true;
-
-    switch (currentTrack.src) {
-        case 'SPOTIFY':
-            return (await spotifyApi.getMyCurrentPlaybackState()).is_playing === false;
-        case 'YOUTUBE':
-            return ytPlayer.playerInfo.playerState === 2
-    }
-}
 
 function updatePlayPauseIcon(paused) {
     const pp = document.getElementById('playpause');
@@ -160,15 +121,8 @@ function updatePlayPauseIcon(paused) {
 }
 
 function seekTrack(track_ms) {
-    switch (currentTrack.src) {
-        case 'SPOTIFY':
-            spotifyState.player.seek(track_ms);
-            break;
-        case 'YOUTUBE':
-            ytPlayer.seekTo(track_ms / 1000)
-            break;
-    }
-    updateProgressBar(track_ms)
+    currentTrack.seek(track_ms);
+    updateProgressBar(track_ms);
 }
 
 function updateProgressBar(track_ms, max_ms) {
@@ -189,26 +143,19 @@ function updateProgressBar(track_ms, max_ms) {
 
 function updateVolume(volume) {
     localdata.saveVolume(volume);
-
-    switch (currentTrack.src) {
-        case 'SPOTIFY':
-            spotifyState.player.setVolume(volume);
-            break;
-        case 'YOUTUBE':
-            ytPlayer.setVolume(volume * 100);
-            break;
-    }
+    currentTrack.setVolume(volume);
 }
 
 function playInQueue(idx, force) {
     if (idx === queuePos && !!!force) return;
-    pause(false);
+    currentTrack.pause(false);
 
     currentTrack = queue[idx];
     queuePos = idx;
     updateMetadata(currentTrack);
     playTrack(currentTrack);
     highlightCurrentTrack();
+    followTrack();
 }
 
 function deleteTrack(rowIndex) {
@@ -224,4 +171,40 @@ function deleteTrack(rowIndex) {
     if (queuePos === rowIndex && !x) {
         playInQueue(queuePos >= queue.length ? 0 : queuePos, true);
     }
+}
+
+function addToQueue(track) {
+    queue.push(track);
+    dataTable.rows.add(convertTrackToColumn(track))
+}
+
+let rotation = 0;
+function shuffle() {
+    const b = document.getElementById('shuffle');
+    rotation += 360;
+    b.style.transform = `rotate(${rotation}deg)`;
+    queue = shuffleArrayWithFixedElement(queue, queuePos);
+
+    // save height
+    let tableRow = document.querySelector('.table-row');
+    let height = tableRow.offsetHeight;
+    tableRow.style.height = height + 'px';
+    clearTable();
+    dataTable.insert({
+        headings: ['#', 'song', 'artist', '#'],
+        data: queue.map(convertTrackToColumn),
+    })
+
+    tableRow.style.height = 'auto';
+}
+
+function clearTable() {
+    dataTable.rows.remove(createArray(queue.length-1))
+}
+
+function reset(){
+    currentTrack.pause(false);
+    currentTrack = undefined;
+    updateMetadata();
+    clearTable();
 }
