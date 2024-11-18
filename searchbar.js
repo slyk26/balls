@@ -11,6 +11,7 @@ async function fetchData(query) {
         await fetchSpotify(query)
         populateDatalist(query);
     } catch (error) {
+        console.error(error)
         errorToast("search failed", 5000)
     }
 }
@@ -33,7 +34,7 @@ function populateDatalist(query) {
     for (const key in suggestions) {
         const option = document.createElement('div');
         option.className = 'dropdown-option';
-        option.textContent = key;
+        option.innerHTML = `<div class="innerSearch"><i class="fa fa-${suggestions[key].type === 'playlist' ? 'p' : 't'}"></i><div class="breakMyHeart">${key}</div></div>`;
         option.addEventListener('click', () => selectOption(key));
         dropdown.appendChild(option);
     }

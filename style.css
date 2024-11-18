@@ -287,6 +287,10 @@ a:hover {
     background-color: #333;
 }
 
+.dropdown-option:hover * {
+    background-color: inherit;
+}
+
 input[type=range] {
     accent-color: #2e8b8b;
 }
@@ -305,11 +309,11 @@ input[type=range] {
     background-color: #2e8b8b;
 }
 
-td:nth-child(1), td:nth-child(4){
+td:nth-child(1), td:nth-child(4) {
     width: 50px;
 }
 
-td:nth-child(2), td:nth-child(3){
+td:nth-child(2), td:nth-child(3) {
     width: 500px;
 }
 
@@ -318,7 +322,7 @@ table {
     cursor: pointer;
 }
 
-th,td {
+th, td {
     padding: 5px 10px;
     border: 2px solid #626d5c;
     text-align: center;
@@ -334,4 +338,16 @@ tr:hover td {
 
 #shuffle {
     transition: transform 0.5s ease;
+}
+
+.innerSearch {
+    background: none;
+    display: flex;
+    column-gap: 10px
+}
+
+.breakMyHeart {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }

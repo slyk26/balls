@@ -170,11 +170,11 @@ async function initSpotifyElements() {
     }
 
     if (spotifyState.loggedIn) {
-        dd.innerHTML = `<i style="color: #1DB954" class="fab fa-spotify"</i>  <i style="color: #2e8b8b" class="fa fa-check"</i>`;
+        dd.innerHTML = `<i style="color: #1DB954" class="fab fa-spotify source-icon"</i>  <i style="color: #2e8b8b" class="fa fa-check"</i>`;
         spotifyState.player = makePlayer();
         spotifyState.player.connect();
     } else {
-        dd.innerHTML = `<i style="color: #B24C4C" class="fab fa-spotify"</i>`
+        dd.innerHTML = `<i style="color: #B24C4C" class="fab fa-spotify source-icon"</i> <i style="color: #2e8b8b" class="fa-solid fa-xmark"></i>`
     }
 
     const menu = document.getElementById('spotify-menu');
