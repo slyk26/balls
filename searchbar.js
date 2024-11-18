@@ -34,7 +34,7 @@ function populateDatalist(query) {
     for (const key in suggestions) {
         const option = document.createElement('div');
         option.className = 'dropdown-option';
-        option.innerHTML = `<div class="innerSearch"><i style="font-size: 10px; align-self: center" class="fa fa-${suggestions[key].type === 'playlist' ? 'p' : 't'}"></i><div class="breakMyHeart">${key}</div></div>`;
+        option.innerHTML = `<div class="innerSearch"><i title="${suggestions[key].type === 'playlist' ? 'Playlist' : 'Track'}" style="font-size: 10px; align-self: center; justify-self: center; margin-top: -2px" class="fa fa-${suggestions[key].type === 'playlist' ? 'p' : 't'}"></i><div class="breakMyHeart">${key}</div></div>`;
         option.addEventListener('click', () => selectOption(key));
         dropdown.appendChild(option);
     }
