@@ -56,11 +56,13 @@ function selectOption(key) {
             }
             playlist.items.forEach(item => {
                 addTrack(spotifyToTrack(item.track));
-            })
+            });
+            infoToast(`added ${playlist.items.length} tracks`);
         });
         return;
     }
     addTrack(data);
+    infoToast(data.title + ' added to queue');
 }
 
 const debouncedFetchData = debounce(fetchData, 200);

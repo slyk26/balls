@@ -3,7 +3,7 @@ const redirectUrl = localStorage.getItem('devURL') || 'https://slyk26.github.io/
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
-const scope = 'streaming playlist-read-private user-read-playback-position user-library-read user-read-playback-state user-modify-playback-state';
+const scope = 'streaming playlist-read-private user-library-read user-read-playback-state user-modify-playback-state playlist-modify-public playlist-modify-private';
 const spotifyApi = new SpotifyWebApi();
 
 const spotifyState = {
@@ -127,7 +127,6 @@ async function logout() {
 
 async function updateRefreshToken() {
     if (localdata.refresh_token != null) {
-        console.log('updating token...');
         const token = await refreshToken();
         localdata.saveTokens(token);
     }
@@ -200,7 +199,9 @@ function makePlayer() {
     const player = new Spotify.Player({
         name: 'balls',
         getOAuthToken: cb => {
-            cb(localdata.access_token);
+            updateRefreshToken().then(access_token => {
+                cb(access_token)
+            })
         },
         volume: volume
     });

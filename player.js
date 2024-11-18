@@ -58,9 +58,7 @@ function addTrack(track) {
         highlightCurrentTrack();
         playTrack(currentTrack);
     }
-
     addToQueue(track);
-    infoToast(track.title + ' added to queue');
 }
 
 function playTrack(track) {
@@ -153,9 +151,7 @@ function playInQueue(idx, force) {
     currentTrack = queue[idx];
     queuePos = idx;
     updateMetadata(currentTrack);
-    playTrack(currentTrack);
-    highlightCurrentTrack();
-    followTrack();
+    debouncedPlay()
 }
 
 function deleteTrack(rowIndex) {
@@ -186,16 +182,14 @@ function shuffle() {
     queue = shuffleArrayWithFixedElement(queue, queuePos);
 
     // save height
-    let tableRow = document.querySelector('.table-row');
-    let height = tableRow.offsetHeight;
-    tableRow.style.height = height + 'px';
+    let table = document.querySelector('.datatable-container');
+    let height = table.offsetHeight;
+    table.style.height = height + 'px';
     clearTable();
     dataTable.insert({
-        headings: ['#', 'song', 'artist', '#'],
         data: queue.map(convertTrackToColumn),
     })
-
-    tableRow.style.height = 'auto';
+    table.style.height = 'auto';
 }
 
 function clearTable() {
@@ -207,4 +201,6 @@ function reset(){
     currentTrack = undefined;
     updateMetadata();
     clearTable();
+    queuePos = -1;
+    queue = [];
 }
