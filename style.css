@@ -336,6 +336,10 @@ tr:hover td {
     color: red !important;
 }
 
+tr .fa-spotify:hover {
+    color: #1DB954 !important;
+}
+
 #shuffle {
     transition: transform 0.5s ease;
 }
@@ -433,6 +437,7 @@ th[aria-sort="descending"]::after {
     transition-property: left;
     transition-duration: 0.5s;
     border: 1px solid white;
+    border-radius: 5px;
     z-index: -1;
 }
 #leftDrawerPull {
@@ -451,4 +456,8 @@ th[aria-sort="descending"]::after {
 }
 #leftDrawerCheck:checked + #leftDrawerContents + #leftDrawerPull:after {
     content: "\2039";
+}
+
+i:not(.fa-volume-up, .fa-spotify) {
+    cursor: pointer;
 }

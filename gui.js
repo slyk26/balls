@@ -13,13 +13,21 @@ dataTable.setMessage('temp music player');
 dataTable.on("datatable.selectrow", (rowIndex, event) => {
     event.preventDefault();
 
+    if (event.target.className === 'fab fa-spotify') {
+        if (event.type === 'mousedown') {
+            window.open(queue[rowIndex].ext_song, '_blank');
+        }
+        return;
+    }
+
     if (event.target.className === 'fa fa-trash') {
         if (event.type === 'mousedown') {
             deleteTrack(rowIndex);
         }
-    } else {
-        playInQueue(rowIndex);
+        return;
     }
+
+    playInQueue(rowIndex);
 });
 
 const myplaylists = new simpleDatatables.DataTable("#myplaylists", {

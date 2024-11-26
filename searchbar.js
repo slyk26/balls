@@ -20,10 +20,10 @@ async function fetchSpotify(query) {
     if (!spotifyState.loggedIn) return;
     let data = await spotifyApi.search(query, ['track', 'playlist']);
     data.tracks.items.concat(...data.playlists.items).forEach(r => {
-        if (r.type === 'track') {
+        if (r?.type === 'track') {
             suggestions[r.name + ' - ' + r.artists.map(m => m.name).join(', ')] = spotifyToTrack(r)
         }
-        if (r.type === 'playlist') {
+        if (r?.type === 'playlist') {
             r.src = 'SPOTIFY';
             suggestions[r.name + ' - ' + r.owner.display_name] = r
         }
