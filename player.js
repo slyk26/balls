@@ -14,7 +14,7 @@ function spotifyToTrack(s) {
         type: s.type,
         ext_song: s.external_urls.spotify,
         ext_artists: s.artists,
-        execute: function() {
+        execute: function () {
             spotifyApi.play({uris: [this.id]}).then(() => {
                 busy = false;
                 updatePlayPauseIcon(false);
@@ -24,11 +24,11 @@ function spotifyToTrack(s) {
                 })
             })
         },
-        play: function() {
+        play: function () {
             if (!!!spotifyState.playerLoaded || this.type !== 'track') return;
             spotifyState.player.resume().then(() => updatePlayPauseIcon(false));
         },
-        pause: function(guiUpdate) {
+        pause: function (guiUpdate) {
             if (!!!spotifyState.playerLoaded || this.type !== 'track') return;
             spotifyState.player.pause().then(() => {
                     if (guiUpdate)
@@ -36,30 +36,31 @@ function spotifyToTrack(s) {
                 }
             );
         },
-       isPaused: async function() {
-           return (await spotifyApi.getMyCurrentPlaybackState()).is_playing === false;
-       },
+        isPaused: async function () {
+            return (await spotifyApi.getMyCurrentPlaybackState()).is_playing === false;
+        },
 
-       setVolume: function(volume) {
-           spotifyState.player.setVolume(volume);
-       },
+        setVolume: function (volume) {
+            spotifyState.player.setVolume(volume);
+        },
 
-        seek: function(target_ms) {
+        seek: function (target_ms) {
             spotifyState.player.seek(target_ms);
         }
     }
 }
 
-function addTrack(track) {
+function addTracks(tracks) {
     if (!currentTrack) {
-        updateMetadata(track);
-        currentTrack = track;
+        updateMetadata(tracks[0]);
+        currentTrack = tracks[0];
         queuePos = 0;
         highlightCurrentTrack();
         playTrack(currentTrack);
     }
-    addToQueue(track);
+    addToQueue(tracks);
 }
+
 
 function playTrack(track) {
     track.execute();
@@ -77,7 +78,7 @@ async function togglePlayPause() {
 
 const debouncedPlay = debounce(() => {
     playTrack(currentTrack);
-    highlightCurrentTrack()
+    highlightCurrentTrack();
     followTrack();
 }, 200)
 
@@ -169,12 +170,15 @@ function deleteTrack(rowIndex) {
     }
 }
 
-function addToQueue(track) {
-    queue.push(track);
-    dataTable.rows.add(convertTrackToColumn(track))
+function addToQueue(tracks) {
+    queue = queue.concat(tracks);
+    dataTable.insert({
+        data: tracks.map(convertTrackToColumn)
+    });
 }
 
 let rotation = 0;
+
 function shuffle() {
     const b = document.getElementById('shuffle');
     rotation += 360;
@@ -182,7 +186,7 @@ function shuffle() {
     queue = shuffleArrayWithFixedElement(queue, queuePos);
 
     // save height
-    let table = document.querySelector('.datatable-container');
+    let table = document.querySelectorAll('.datatable-container')[1];
     let height = table.offsetHeight;
     table.style.height = height + 'px';
     clearTable();
@@ -193,11 +197,11 @@ function shuffle() {
 }
 
 function clearTable() {
-    dataTable.rows.remove(createArray(queue.length-1))
+    dataTable.rows.remove(createArray(document.querySelector('#queue tbody').childElementCount - 1));
 }
 
-function reset(){
-    currentTrack.pause(false);
+function reset() {
+    currentTrack?.pause(false);
     currentTrack = undefined;
     updateMetadata();
     clearTable();

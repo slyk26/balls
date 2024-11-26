@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>balls</title>
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css" crossorigin="anonymous">
@@ -24,7 +25,7 @@
         </label>
         <div class="center-row">
             <div id="search-container">
-                <input type="text" id="search-input" autocomplete="off" placeholder="search...">
+                <input type="text" id="search-input" autocomplete="off" placeholder="search or paste spotify links here to add...">
                 <div id="suggestions"></div>
             </div>
         </div>
@@ -32,7 +33,25 @@
     <hr>
 </div>
 
-<div class="table-row" style="position: absolute; z-index: -1; max-height: calc(100vh - 145px);">
+<div id="drawersContainer">
+    <div id="leftDrawer" class="drawer">
+        <input id="leftDrawerCheck" type="checkbox"/>
+        <div id="leftDrawerContents" class="drawerContents">
+                <table border="1" frame="void" id="myplaylists" style="width: 100%;">
+                    <thead>
+                    <tr>
+                        <th># my playlists #</th>
+                    </tr>
+                    </thead>
+                    <tbody id="myplaylists-body">
+                    </tbody>
+                </table>
+        </div>
+        <label id="leftDrawerPull" class="drawerPull" for="leftDrawerCheck"></label>
+    </div>
+</div>
+
+<div class="table-row" style="position: absolute; z-index: -2; max-height: calc(100vh - 145px);">
     <table border="1" frame="void" id="queue" style="width:100%;">
         <thead>
         <tr>
@@ -107,8 +126,5 @@
 <script type="text/javascript" src="./gui.js"></script>
 <script src="./spotify.js"></script>
 <script src="./searchbar.js"></script>
-<script>
-    initSpotify();
-</script>
 </body>
 </html>

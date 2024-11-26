@@ -51,18 +51,10 @@ function selectOption(key) {
     const data = suggestions[key];
 
     if (data.src === 'SPOTIFY' && data.type === 'playlist') {
-        spotifyApi.getPlaylistTracks(data.id).then(playlist => {
-            if (playlist.items.length === 0) {
-                warnToast('playlist does not return any songs');
-            }
-            playlist.items.forEach(item => {
-                addTrack(spotifyToTrack(item.track));
-            });
-            infoToast(`added ${playlist.items.length} tracks`);
-        });
+        addTracksFromPlaylistId(data.id);
         return;
     }
-    addTrack(data);
+    addTracks([data]);
     infoToast(data.title + ' added to queue');
 }
 
@@ -70,6 +62,20 @@ const debouncedFetchData = debounce(fetchData, 200);
 
 document.getElementById('search-input').addEventListener('input', (event) => {
     const query = event.target.value;
+
+
+    if (isValidSpotifyUrl(sanitizeUrl(query))) {
+        const p = sanitizeUrl(query).split('/');
+
+        if (p[3].toLowerCase() === 'track') {
+            addTrackFromId(p[4]);
+        } else {
+            addTracksFromPlaylistId(p[4])
+        }
+        input.value = '';
+        return;
+    }
+
     dropdown.style.border = 'none'
     dropdown.innerHTML = ''
     debouncedFetchData(query);
@@ -102,4 +108,45 @@ function sortSuggestions(query) {
 
     container.innerHTML = '';
     filteredAndSortedOptions.forEach(option => container.appendChild(option));
+}
+
+function isValidSpotifyUrl(url) {
+    const pattern = /^(https?:\/\/)?(open\.)?(spotify\.com)\/(track|playlist)\/[a-zA-Z0-9]{22}$/;
+    return pattern.test(url);
+}
+
+function sanitizeUrl(url) {
+    return url.trim().substring(0, url.lastIndexOf('?'));
+}
+
+function addTrackFromId(id) {
+    spotifyApi.getTrack(id).then(t => {
+        const tr = spotifyToTrack(t);
+        addTracks([tr]);
+        infoToast(tr.title + ' added to queue');
+    });
+}
+
+async function addTracksFromPlaylistId(id) {
+    let first = true;
+    let counter = 0;
+    let offset = 0;
+    let limit = 100;
+    let total = 0;
+
+    do {
+        const playlistdata = await spotifyApi.getPlaylistTracks(id, {limit: limit, offset: offset});
+        if (playlistdata.items.length === 0 && first) {
+            warnToast('playlist does not return any songs');
+            return;
+        }
+        first = false;
+        addTracks(playlistdata.items.map(i => spotifyToTrack(i.track)))
+        counter += playlistdata.items.length;
+        offset += limit;
+        total = playlistdata.total;
+        infoToast(`${counter}/${total} tracks added`);
+    } while (offset < total);
+
+
 }

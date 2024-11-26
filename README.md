@@ -18,5 +18,5 @@ ___
 
 * [ ] get out of spotify development mode (check requirements)
 * [ ] import/export/save temp playlists created by balls
-* [ ] icons in the searchbar to show if playlist/song 
+* [x] icons in the searchbar to show if playlist/song 
 * [ ] polish the source code

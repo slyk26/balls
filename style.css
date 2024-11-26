@@ -351,3 +351,104 @@ tr:hover td {
     white-space: nowrap;
     text-overflow: ellipsis;
 }
+
+.datatable-sorter {
+    border-style: none;
+    display: inline-block;
+    height: 100%;
+    position: relative;
+    width: 100%;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.datatable-sorter:hover {
+    text-decoration: underline;
+}
+
+th[aria-sort="ascending"]::after {
+    content: "▲";
+    position: absolute;
+    right: 20px;
+    font-size: 20px;
+}
+
+th[aria-sort="descending"]::after {
+    content: "▼";
+    position: absolute;
+    right: 20px;
+    font-size: 20px;
+}
+
+/*--------------------------------*/
+
+#drawersContainer {
+    position: absolute;
+}
+
+.drawer {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+}
+
+.drawer > input[type=checkbox] {
+    display: none;
+}
+.drawerPull {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: #2e8b8b;
+    text-align: center;
+    font-weight: bold;
+    font-size: 1.2em;
+    vertical-align: top;
+    border-radius: 4px;
+}
+.drawerContents {
+    position: absolute;
+    top: 0;
+}
+.drawerPull {
+    position: absolute;
+    top: 0;
+    z-index: -1;
+}
+.drawerPull:after {
+    content: "";
+}
+
+#leftDrawer {
+    padding: 0;
+    margin: 0;
+    left: -350px;
+}
+#leftDrawerContents {
+    left: -10px;
+    width: 350px;
+    height: calc(100vh - 155px);
+    overflow-y: auto;
+    transition-property: left;
+    transition-duration: 0.5s;
+    border: 1px solid white;
+    z-index: -1;
+}
+#leftDrawerPull {
+    left: 350px;
+    transition-property: left;
+    transition-duration: 0.5s;
+}
+#leftDrawerPull:after {
+    content: "\203a";
+}
+#leftDrawerCheck:checked + #leftDrawerContents {
+    left: 350px;
+}
+#leftDrawerCheck:checked + #leftDrawerContents + #leftDrawerPull {
+    left: 710px;
+}
+#leftDrawerCheck:checked + #leftDrawerContents + #leftDrawerPull:after {
+    content: "\2039";
+}

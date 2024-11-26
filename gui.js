@@ -22,6 +22,18 @@ dataTable.on("datatable.selectrow", (rowIndex, event) => {
     }
 });
 
+const myplaylists = new simpleDatatables.DataTable("#myplaylists", {
+    searchable: false,
+    sortable: false,
+    paging: false,
+});
+
+
+myplaylists.on("datatable.selectrow", (rowIndex, event) => {
+    event.preventDefault();
+    addTracksFromPlaylistId(spotifyState.myplaylists[rowIndex].id);
+});
+
 function infoToast(msg, ms) {
     Toastify({
         text: msg,
@@ -70,8 +82,8 @@ function warnToast(msg, ms) {
     }).showToast();
 }
 
-function blank() {
-    const rows = document.querySelectorAll('tr');
+function blank(table) {
+    const rows = document.getElementById(table).querySelectorAll('tr');
 
     for (let i = 0; i < rows.length; i++) {
         const cells = rows[i].querySelectorAll('*');
@@ -82,7 +94,7 @@ function blank() {
 }
 
 function colorRow(idx, color) {
-    const row = document.querySelector(`tr[data-index="${idx}"]`);
+    const row = document.getElementById('queue').querySelector(`tr[data-index="${idx}"]`);
 
     if (row) {
         const cells = row.querySelectorAll('*');
@@ -105,7 +117,7 @@ function menuButton(id, text, listener) {
 }
 
 function highlightCurrentTrack() {
-    blank();
+    blank('queue');
     colorRow(queuePos, '#2e8b8b');
 }
 
@@ -119,7 +131,7 @@ function makeLink(text, url) {
     return `<a target="_blank" href="${url}">${text}</a>`
 }
 
-function followTrack(){
+function followTrack() {
     const row = document.querySelector(`tr[data-index="${queuePos}"]`);
     scrollTo(row);
 }

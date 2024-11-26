@@ -13,7 +13,8 @@ const spotifyState = {
     player: {},
     playerLoaded: false,
     current_ms: 0,
-    max_ms: 9.59
+    max_ms: 9.59,
+    myplaylists: []
 }
 
 const localdata = {
@@ -159,7 +160,7 @@ async function checkSpotifyAuth() {
 }
 
 async function initSpotifyElements() {
-    const dd = document.getElementById('spotify-dd')
+    const dd = document.getElementById('spotify-dd');
 
     setInterval(updateRefreshToken, 45 * 60 * 1000); // 45 minutes
 
@@ -183,6 +184,8 @@ async function initSpotifyElements() {
     } else {
         menu.appendChild(menuButton('spotify-login', 'Login', login));
     }
+
+    addMyPlaylists();
 }
 
 function initSpotify() {
@@ -192,6 +195,8 @@ function initSpotify() {
         })
     }
 }
+
+initSpotify();
 
 function makePlayer() {
     const volume = parseFloat(localdata.volume) || 0;
@@ -227,7 +232,7 @@ function makePlayer() {
     player.addListener('progress', pos_data => {
         spotifyState.current_ms = pos_data.position;
 
-        if(currentTrack?.src === 'SPOTIFY'){
+        if (currentTrack?.src === 'SPOTIFY') {
             updateProgressBar(spotifyState.current_ms);
         }
     })
@@ -235,10 +240,24 @@ function makePlayer() {
     player.addListener('player_state_changed', state => {
         spotifyState.max_ms = state.duration;
 
-        if(currentTrack?.src === 'SPOTIFY') {
+        if (currentTrack?.src === 'SPOTIFY') {
             updateProgressBar(spotifyState.current_ms, spotifyState.max_ms);
         }
     })
 
     return player;
+}
+
+function addMyPlaylists() {
+    spotifyApi.getUserPlaylists(spotifyState.user.id).then(pl => {
+        pl.items.forEach(async p => {
+            const e = {
+                title: p.name,
+                owner: p.owner.display_name,
+                id: p.id
+            };
+            spotifyState.myplaylists.push(e);
+            myplaylists.rows.add(convertPlaylistToColumn(e));
+        });
+    });
 }

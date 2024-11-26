@@ -38,6 +38,10 @@ function convertTrackToColumn(track){
     return [`<i style="background: none" class="fab fa-${track.src.toLowerCase()}"></i>`, track.title, track.owner, `<i style="background: none" class="fa fa-trash"></i>`]
 }
 
+function convertPlaylistToColumn(playlist) {
+    return [`${playlist.title} - ${playlist.owner}`];
+}
+
 function openGH() {
     window.open('https://github.com/slyk26', '_blank');
 }
