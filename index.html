@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Permissions-Policy" content="interest-cohort=(), user-id=()" />
     <title>balls</title>
     <link rel="stylesheet" href="./style.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.0.0/css/all.css" crossorigin="anonymous">
@@ -96,7 +95,7 @@
             <button class="control-button" id="idk" onclick="openGH()"><i class="fab fa-github"></i></button>
             <button class="control-button" id="clear" onclick="reset()"><i class="fa fa-trash"></i></button>
             <button class="control-button" onclick="previousTrack()"><i class="fa fa-fast-backward"></i></button>
-            <button class="control-button play-button" onclick="togglePlayPause()"><i id="playpause" class="fa fa-play"></i></button>
+            <button id="playbutton" class="control-button play-button" onclick="togglePlayPause()"><i id="playpause" class="fa fa-play"></i></button>
             <button class="control-button" onclick="nextTrack()"><i class="fa fa-fast-forward"></i></button>
             <button class="control-button" id="shuffle" onclick="shuffle()"><i class="fa fa-random"></i></button>
             <button class="control-button" id="goTo" onclick="followTrack()"><i class="fa fa-crosshairs"></i></button>
