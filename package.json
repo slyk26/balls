@@ -1,7 +1,7 @@
 {
   "name": "balls",
   "version": "1.0.0",
-  "description": "multi platform music player",
+  "description": "music player",
   "author": "slyk26",
   "scripts": {
     "start": "http-server --cors public -c-1"

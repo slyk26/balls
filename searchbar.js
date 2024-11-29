@@ -18,7 +18,7 @@ async function fetchData(query) {
 
 async function fetchSpotify(query) {
     if (!spotifyState.loggedIn) return;
-    let data = await spotifyApi.search(query, ['track', 'playlist']);
+    let data = await spotifyApi.search(query, ['track', 'playlist'], {market: spotifyState.user.country});
     data.tracks.items.concat(...data.playlists.items).forEach(r => {
         if (r?.type === 'track') {
             suggestions[r.name + ' - ' + r.artists.map(m => m.name).join(', ')] = spotifyToTrack(r)
@@ -116,8 +116,10 @@ function isValidSpotifyUrl(url) {
 }
 
 function sanitizeUrl(url) {
-    return url.trim().substring(0, url.lastIndexOf('?'));
+    const q = url.lastIndexOf('?');
+    return url.trim().substring(0, q === -1 ? url.trim().length : q);
 }
+
 
 function addTrackFromId(id) {
     spotifyApi.getTrack(id).then(t => {
@@ -133,6 +135,7 @@ async function addTracksFromPlaylistId(id) {
     let offset = 0;
     let limit = 100;
     let total = 0;
+    let local = 0;
 
     do {
         const playlistdata = await spotifyApi.getPlaylistTracks(id, {limit: limit, offset: offset});
@@ -141,12 +144,20 @@ async function addTracksFromPlaylistId(id) {
             return;
         }
         first = false;
-        addTracks(playlistdata.items.map(i => spotifyToTrack(i.track)))
+
+        for (let i = playlistdata.items.length - 1; i >= 0; i--) {
+            if (playlistdata.items[i].is_local) {
+                playlistdata.items.splice(i, 1);
+                local += 1;
+            }
+        }
+
+        addTracks(playlistdata.items.map(i => spotifyToTrack(i.track)));
         counter += playlistdata.items.length;
         offset += limit;
         total = playlistdata.total;
         infoToast(`${counter}/${total} tracks added`);
     } while (offset < total);
-
-
+    if(local > 0)
+        warnToast(`skipped ${local} local tracks`);
 }

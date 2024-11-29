@@ -213,19 +213,10 @@ function makePlayer() {
 
     // Ready
     player.addListener('ready', ({device_id}) => {
+        restoreQueue();
         infoToast("spotify is ready", 3000);
         spotifyState.deviceId = device_id;
-        fetch('https://api.spotify.com/v1/me/player', {
-            method: 'PUT',
-            body: JSON.stringify({
-                device_ids: [device_id],
-                play: false
-            }),
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localdata.access_token}`
-            }
-        });
+        focus();
         spotifyState.playerLoaded = true;
     });
 

@@ -45,3 +45,17 @@ function convertPlaylistToColumn(playlist) {
 function openGH() {
     window.open('https://github.com/slyk26', '_blank');
 }
+
+function focus() {
+    fetch('https://api.spotify.com/v1/me/player', {
+        method: 'PUT',
+        body: JSON.stringify({
+            device_ids: [spotifyState.deviceId],
+            play: false
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localdata.access_token}`
+        }
+    });
+}

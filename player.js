@@ -3,10 +3,8 @@ let queuePos = -1;
 let currentTrack;
 let busy = false;
 
-// track needs {id, title, owner, src, type, }
-
 function spotifyToTrack(s) {
-    return {
+    return addSpotifyControls( {
         id: s.type === 'track' ? s.uri : s.id,
         title: s.name,
         owner: s.artists.map(a => a.name).join(', '),
@@ -14,14 +12,18 @@ function spotifyToTrack(s) {
         type: s.type,
         ext_song: s.external_urls.spotify,
         ext_artists: s.artists,
-        execute: function () {
-            spotifyApi.play({uris: [this.id]}).then(() => {
+    });
+}
+
+function addSpotifyControls(track){
+    return {
+        ...track,
+        execute: function (position_ms) {
+            spotifyApi.play({uris: [this.id], position_ms: position_ms || 0}).then(() => {
                 busy = false;
                 updatePlayPauseIcon(false);
             }).catch(() => {
-                spotifyApi.transferMyPlayback([spotifyState.deviceId]).then(() => {
-                    this.play();
-                })
+                nextTrack(queuePos);
             })
         },
         play: function () {
@@ -50,6 +52,12 @@ function spotifyToTrack(s) {
     }
 }
 
+function addControls(track){
+    if(track.src === 'SPOTIFY'){
+        return addSpotifyControls(track);
+    }
+}
+
 function addTracks(tracks) {
     if (!currentTrack) {
         updateMetadata(tracks[0]);
@@ -62,8 +70,8 @@ function addTracks(tracks) {
 }
 
 
-function playTrack(track) {
-    track.execute();
+function playTrack(track, ms) {
+    track.execute(ms);
 }
 
 async function togglePlayPause() {
@@ -76,13 +84,19 @@ async function togglePlayPause() {
     }
 }
 
-const debouncedPlay = debounce(() => {
-    playTrack(currentTrack);
+const debouncedPlay = debounce((ms) => {
+    playTrack(currentTrack, ms);
     highlightCurrentTrack();
     followTrack();
 }, 200)
 
-function nextTrack() {
+function nextTrack(row) {
+    if(row !== undefined){
+        deleteTrack(row, true);
+        warnToast('skip regional track');
+        return;
+    }
+
     if (queuePos === queue.length - 1) {
         queuePos = -1;
     }
@@ -145,18 +159,24 @@ function updateVolume(volume) {
     currentTrack.setVolume(volume);
 }
 
-function playInQueue(idx, force) {
+function playInQueue(idx, force, ms) {
     if (idx === queuePos && !!!force) return;
     currentTrack.pause(false);
 
     currentTrack = queue[idx];
     queuePos = idx;
     updateMetadata(currentTrack);
-    debouncedPlay()
+    debouncedPlay(ms)
 }
 
-function deleteTrack(rowIndex) {
-    let x = queuePos > rowIndex;
+function deleteTrack(rowIndex, error) {
+    let x = queuePos > rowIndex
+
+    if(queuePos === 0 && queue.length === 1 && error){
+        currentTrack = undefined;
+        updateMetadata();
+    }
+
     if (x) {
         queuePos -= 1;
     }
@@ -172,6 +192,10 @@ function deleteTrack(rowIndex) {
 
 function addToQueue(tracks) {
     queue = queue.concat(tracks);
+    addToTable(tracks);
+}
+
+function addToTable(tracks){
     dataTable.insert({
         data: tracks.map(convertTrackToColumn)
     });
@@ -190,9 +214,7 @@ function shuffle() {
     let height = table.offsetHeight;
     table.style.height = height + 'px';
     clearTable();
-    dataTable.insert({
-        data: queue.map(convertTrackToColumn),
-    })
+    addToTable(queue);
     table.style.height = 'auto';
 }
 
@@ -207,4 +229,29 @@ function reset() {
     clearTable();
     queuePos = -1;
     queue = [];
+}
+
+function persistQueue(){
+    let queueData = {
+        queue: queue,
+        queuePos: queuePos,
+        currentMs: spotifyState.current_ms
+    }
+    localStorage.setItem('queue', JSON.stringify(queueData));
+}
+
+window.addEventListener('beforeunload', () => {
+    persistQueue();
+})
+
+function restoreQueue() {
+    const queueData = JSON.parse(localStorage.getItem("queue"));
+
+    if(queueData.queue.length === 0) return;
+
+    queue = queueData.queue.map(addControls);
+    queuePos = queueData.queuePos;
+    currentTrack = queue[queuePos];
+    addToTable(queue);
+    playInQueue(queuePos, true, queueData.currentMs);
 }

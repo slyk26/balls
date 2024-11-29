@@ -140,7 +140,7 @@ function makeLink(text, url) {
 }
 
 function followTrack() {
-    const row = document.querySelector(`tr[data-index="${queuePos}"]`);
+    const row = document.getElementById('queue').querySelector(`tr[data-index="${queuePos}"]`);
     scrollTo(row);
 }
 
@@ -151,3 +151,20 @@ function scrollTo(element) {
         inline: "nearest"
     });
 }
+
+document.addEventListener('dragover', (event) => {
+    event.preventDefault();
+});
+
+document.addEventListener('drop', (event) => {
+    event.preventDefault();
+    const data = event.dataTransfer.getData('text/plain');
+    if(isValidSpotifyUrl(sanitizeUrl(data))){
+        const id = data.substring(data.lastIndexOf('/')+1)
+        if(data.toLowerCase().includes('playlist')){
+            addTracksFromPlaylistId(id);
+        } else {
+            addTrackFromId(id)
+        }
+    }
+});
