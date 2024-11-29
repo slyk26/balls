@@ -254,4 +254,5 @@ function restoreQueue() {
     currentTrack = queue[queuePos];
     addToTable(queue);
     playInQueue(queuePos, true, queueData.currentMs);
+    currentTrack.play();
 }
