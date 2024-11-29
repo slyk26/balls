@@ -254,14 +254,4 @@ function restoreQueue() {
     currentTrack = queue[queuePos];
     addToTable(queue);
     playInQueue(queuePos, true, queueData.currentMs);
-
-    setTimeout(() => {
-        console.log('YO');
-        const clickEvent = new MouseEvent('click', {
-            bubbles: true,
-            cancelable: true,
-            view: window
-        });
-        document.getElementById('playbutton').dispatchEvent(clickEvent);
-    }, 300)
 }
