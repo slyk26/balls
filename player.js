@@ -254,6 +254,5 @@ function restoreQueue() {
     currentTrack = queue[queuePos];
     addToTable(queue);
     playInQueue(queuePos, true, queueData.currentMs);
-
-    setTimeout(currentTrack.play, 1000);
+    updatePlayPauseIcon(true);
 }
