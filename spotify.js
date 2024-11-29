@@ -213,11 +213,11 @@ function makePlayer() {
 
     // Ready
     player.addListener('ready', ({device_id}) => {
-        restoreQueue();
         infoToast("spotify is ready", 3000);
         spotifyState.deviceId = device_id;
         focus();
         spotifyState.playerLoaded = true;
+        restoreQueue();
     });
 
     player.addListener('progress', pos_data => {
