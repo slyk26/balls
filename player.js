@@ -257,6 +257,11 @@ function restoreQueue() {
 
     setTimeout(() => {
         console.log('YO');
-        document.getElementById('playbutton').dispatchEvent(new MouseEvent('click'));
+        const clickEvent = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        });
+        document.getElementById('playbutton').dispatchEvent(clickEvent);
     }, 300)
 }
