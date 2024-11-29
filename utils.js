@@ -46,7 +46,7 @@ function openGH() {
     window.open('https://github.com/slyk26', '_blank');
 }
 
-function focus() {
+function focus(cb) {
     fetch('https://api.spotify.com/v1/me/player', {
         method: 'PUT',
         body: JSON.stringify({
@@ -57,5 +57,5 @@ function focus() {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${localdata.access_token}`
         }
-    });
+    }).then(cb);
 }
