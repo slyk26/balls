@@ -257,5 +257,5 @@ function restoreQueue() {
 
     setTimeout(() => {
         currentTrack.play();
-    }, 50)
+    }, 500)
 }
