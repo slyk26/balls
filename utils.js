@@ -51,7 +51,7 @@ function focus(cb) {
         method: 'PUT',
         body: JSON.stringify({
             device_ids: [spotifyState.deviceId],
-            play: false
+            play: true
         }),
         headers: {
             'Content-Type': 'application/json',
