@@ -3,7 +3,7 @@ const redirectUrl = localStorage.getItem('devURL') || 'https://slyk26.github.io/
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
-const scope = 'streaming playlist-read-private user-library-read user-read-playback-state user-modify-playback-state playlist-modify-public playlist-modify-private';
+const scope = 'streaming playlist-read-private user-read-currently-playing user-library-read user-read-playback-state user-modify-playback-state playlist-read-collaborative user-library-read';
 const spotifyApi = new SpotifyWebApi();
 
 const spotifyState = {
@@ -123,6 +123,7 @@ async function logout() {
     localStorage.removeItem('refresh_in');
     localStorage.removeItem('expires_in');
     localStorage.removeItem('expires');
+    localStorage.removeItem('queue');
     window.location.href = redirectUrl;
 }
 
@@ -162,7 +163,7 @@ async function checkSpotifyAuth() {
 async function initSpotifyElements() {
     const dd = document.getElementById('spotify-dd');
 
-    setInterval(updateRefreshToken, 45 * 60 * 1000); // 45 minutes
+    setInterval(updateRefreshToken, 30000);
 
     try {
         spotifyState.user = await spotifyApi.getMe();

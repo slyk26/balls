@@ -232,6 +232,8 @@ function reset() {
 }
 
 function persistQueue(){
+    if(!!!spotifyState.loggedIn) return;
+
     let queueData = {
         queue: queue,
         queuePos: queuePos,
