@@ -1,6 +1,7 @@
 let queue = [];
 let queuePos = -1;
 let currentTrack;
+let busy = false;
 
 function spotifyToTrack(s) {
     return addSpotifyControls( {
@@ -19,6 +20,7 @@ function addSpotifyControls(track){
         ...track,
         execute: function (position_ms) {
             spotifyApi.play({uris: [this.id], position_ms: position_ms || 0}).then(() => {
+                busy = false;
                 updatePlayPauseIcon(false);
             }).catch(() => {
                 nextTrack(queuePos);
@@ -137,7 +139,9 @@ function seekTrack(track_ms) {
 }
 
 function updateProgressBar(track_ms, max_ms) {
-    if (track_ms >= max_ms && track_ms > 0) {
+    if (track_ms >= max_ms && busy === false && track_ms > 0) {
+        busy = true;
+        setTimeout(() => nextTrack(), 100)
         return;
     }
 
