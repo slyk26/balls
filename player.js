@@ -143,8 +143,8 @@ function seekTrack(track_ms) {
 
 function updateProgressBar(track_ms, max_ms) {
     if (track_ms >= max_ms) {
-        busy = true;
         nextTrack();
+        busy = true;
         return;
     }
 
