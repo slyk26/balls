@@ -72,6 +72,7 @@ function addTracks(tracks) {
 
 
 function playTrack(track, ms) {
+    if(busy) return;
     track.execute(ms);
 }
 
