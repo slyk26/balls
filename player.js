@@ -141,7 +141,7 @@ function seekTrack(track_ms) {
 function updateProgressBar(track_ms, max_ms) {
     if (track_ms >= max_ms && busy === false && track_ms > 0) {
         busy = true;
-        nextTrack();
+        setTimeout(() => nextTrack(), 100)
         return;
     }
 
