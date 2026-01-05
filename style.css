@@ -82,6 +82,15 @@ a:hover {
     white-space: nowrap;
 }
 
+.help {
+    display: inline-block;
+    border: 1px solid gray;
+    border-radius: 4px;
+    padding: 10px 30px 10px 30px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
 .dd-button:after {
     content: '';
     position: absolute;

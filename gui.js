@@ -8,7 +8,7 @@ const dataTable = new simpleDatatables.DataTable("#queue", {
     }
 });
 
-dataTable.setMessage('temp music player');
+dataTable.setMessage('ヾ(⌐■_■)ノ♪');
 
 dataTable.on("datatable.selectrow", (rowIndex, event) => {
     event.preventDefault();

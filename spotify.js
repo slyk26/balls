@@ -1,5 +1,5 @@
 const clientId = '7257603b361940308bc1c93da610767e';
-const redirectUrl = localStorage.getItem('devURL') || 'https://slyk26.github.io/balls';
+const redirectUrl = 'https://slyk26.github.io/balls';
 
 const authorizationEndpoint = "https://accounts.spotify.com/authorize";
 const tokenEndpoint = "https://accounts.spotify.com/api/token";
@@ -19,33 +19,33 @@ const spotifyState = {
 
 const localdata = {
     get access_token() {
-        return localStorage.getItem('access_token') || null;
+        return sessionStorage.getItem('access_token') || null;
     },
     get refresh_token() {
-        return localStorage.getItem('refresh_token') || null;
+        return sessionStorage.getItem('refresh_token') || null;
     },
     get expires_in() {
-        return localStorage.getItem('refresh_in') || null
+        return sessionStorage.getItem('refresh_in') || null
     },
     get expires() {
-        return localStorage.getItem('expires') || null
+        return sessionStorage.getItem('expires') || null
     },
     get volume() {
-        return localStorage.getItem('volume') || null
+        return sessionStorage.getItem('volume') || null
     },
 
     saveTokens: function (response) {
         const {access_token, refresh_token, expires_in} = response;
-        localStorage.setItem('access_token', access_token);
-        localStorage.setItem('refresh_token', refresh_token);
-        localStorage.setItem('expires_in', expires_in);
+        sessionStorage.setItem('access_token', access_token);
+        sessionStorage.setItem('refresh_token', refresh_token);
+        sessionStorage.setItem('expires_in', expires_in);
 
         const now = new Date();
-        localStorage.setItem('expires', new Date(now.getTime() + (expires_in * 1000)).toString());
+        sessionStorage.setItem('expires', new Date(now.getTime() + (expires_in * 1000)).toString());
     },
 
     saveVolume(volume) {
-        localStorage.setItem('volume', volume);
+        sessionStorage.setItem('volume', volume);
     }
 };
 
@@ -61,7 +61,7 @@ async function redirectToSpotifyAuthorize() {
         .replace(/\+/g, '-')
         .replace(/\//g, '_');
 
-    window.localStorage.setItem('code_verifier', code_verifier);
+    window.sessionStorage.setItem('code_verifier', code_verifier);
 
     const authUrl = new URL(authorizationEndpoint)
     const params = {
@@ -78,7 +78,7 @@ async function redirectToSpotifyAuthorize() {
 }
 
 async function getToken(code) {
-    const code_verifier = localStorage.getItem('code_verifier');
+    const code_verifier = sessionStorage.getItem('code_verifier');
 
     const response = await fetch(tokenEndpoint, {
         method: 'POST',
@@ -118,12 +118,7 @@ async function login() {
 }
 
 async function logout() {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('refresh_in');
-    localStorage.removeItem('expires_in');
-    localStorage.removeItem('expires');
-    localStorage.removeItem('queue');
+    sessionStorage.clear();
     window.location.href = redirectUrl;
 }
 
@@ -162,6 +157,7 @@ async function checkSpotifyAuth() {
 
 async function initSpotifyElements() {
     const dd = document.getElementById('spotify-dd');
+    const help = document.getElementById('help-login');
 
     setInterval(updateRefreshToken, 30000);
 
@@ -176,7 +172,8 @@ async function initSpotifyElements() {
         spotifyState.player = makePlayer();
         spotifyState.player.connect();
     } else {
-        dd.innerHTML = `<i style="color: #B24C4C" class="fab fa-spotify source-icon"</i> <i style="color: #2e8b8b" class="fa-solid fa-xmark"></i>`
+        dd.innerHTML = `<i style="color: #B24C4C" class="fab fa-spotify source-icon"</i> <i style="color: #2e8b8b" class="fa-solid fa-xmark"></i>`;
+        help.innerHTML = `<button onclick="login()">or click here</button>`;
     }
 
     const menu = document.getElementById('spotify-menu');

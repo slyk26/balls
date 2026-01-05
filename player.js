@@ -239,7 +239,7 @@ function persistQueue(){
         queuePos: queuePos,
         currentMs: spotifyState.current_ms
     }
-    localStorage.setItem('queue', JSON.stringify(queueData));
+    sessionStorage.setItem('queue', JSON.stringify(queueData));
 }
 
 window.addEventListener('beforeunload', () => {
@@ -247,7 +247,7 @@ window.addEventListener('beforeunload', () => {
 })
 
 function restoreQueue() {
-    const queueData = JSON.parse(localStorage.getItem("queue"));
+    const queueData = JSON.parse(sessionStorage.getItem("queue"));
 
     if(queueData.queue.length === 0) return;
 

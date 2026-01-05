@@ -23,6 +23,34 @@
                 <li class="divider"></li>
             </ul>
         </label>
+
+        <label style="align-content: end" class="dropdown">
+            <button onclick="window.help.showModal();" class="help"><i style="font-size: 20px" class="fa fa-circle-question"></i></button>
+            <dialog id="help">
+                <div style="text-align: center">
+                    <p># clientside spotify player #</p>
+                    <br>
+                    <p>changes here will <span style="color:red">not</span> modify your actual playlists</p>
+                    <p>get started by logging in top left <span id="help-login"></span></p>
+                    <p>then <span style="color:#2e8b8b">search</span> a song or open your playlists on the left side using: <span style="color:#2e8b8b">[</span>><span style="color:#2e8b8b">]</span></p>
+                </div>
+                <table style="width: 50vw; align-self: center">
+                    <th>symbol</th>
+                    <th>meaning</th>
+                    <tr><td><i class="fab fa-github"></i></td><td>my github</td></tr>
+                    <tr><td><i class="fa fa-trash"></i> below</td><td>deletes the whole playlist</td></tr>
+                    <tr><td><i class="fa fa-trash"></i> in table</td><td>deletes the song from the playlist</td></tr>
+                    <tr><td><i class="fa fa fa-fast-backward"></i> / <i class="fa fa fa-fast-forward"></i></td><td>play previous / next</td></tr>
+                    <tr><td><i class="fa fa-play"></i> / <i class="fa fa-pause"></i></td><td>play/pause</td></tr>
+                    <tr><td><i class="fa fa-random"></i></td><td>randomize playlist</td></tr>
+                    <tr><td><i class="fa fa-crosshairs"></i></td><td>scroll to active song</td></tr>
+                </table>
+                <form style="text-align: center; padding: 10px" method="dialog">
+                    <button style="font-size: 20px">Got it!</button>
+                </form>
+            </dialog>
+        </label>
+
         <div class="center-row">
             <div id="search-container">
                 <input type="text" id="search-input" autocomplete="off" placeholder="search or drag n drop links...">
