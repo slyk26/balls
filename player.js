@@ -20,12 +20,11 @@ function addSpotifyControls(track){
         ...track,
         execute: function (position_ms) {
             spotifyApi.play({uris: [this.id], position_ms: position_ms || 0}).then(() => {
+                busy = false;
                 updatePlayPauseIcon(false);
             }).catch(() => {
                 nextTrack(queuePos);
-            }).finally(() => {
-                busy = false;
-            });
+            })
         },
         play: function () {
             if (!!!spotifyState.playerLoaded || this.type !== 'track') return;
@@ -73,7 +72,6 @@ function addTracks(tracks) {
 
 function playTrack(track, ms) {
     track.execute(ms);
-    busy = true;
 }
 
 async function togglePlayPause() {
@@ -93,9 +91,6 @@ const debouncedPlay = debounce((ms) => {
 }, 200)
 
 function nextTrack(row) {
-
-    if(busy) return;
-
     if(row !== undefined){
         deleteTrack(row, true);
         warnToast('skip regional track');
@@ -144,9 +139,9 @@ function seekTrack(track_ms) {
 }
 
 function updateProgressBar(track_ms, max_ms) {
-    if (track_ms >= max_ms) {
-        nextTrack();
+    if (track_ms >= max_ms && busy === false && track_ms > 0) {
         busy = true;
+        nextTrack();
         return;
     }
 
