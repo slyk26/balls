@@ -31,7 +31,7 @@ const localdata = {
         return sessionStorage.getItem('expires') || null
     },
     get volume() {
-        return sessionStorage.getItem('volume') || null
+        return localStorage.getItem('volume') || null
     },
 
     saveTokens: function (response) {
@@ -45,7 +45,7 @@ const localdata = {
     },
 
     saveVolume(volume) {
-        sessionStorage.setItem('volume', volume);
+        localStorage.setItem('volume', volume);
     }
 };
 
