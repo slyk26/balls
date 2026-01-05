@@ -3,8 +3,8 @@ ___
 ## temp spotify player
 
 ### features:
-* fully clientside javascript application
-* create one playlist without making one on spotify itself
+* fully clientside spotify player
+* create a temporary playlist without modifiying your spotify ones.
 * add tracks and playlists in any way possible (copy paste, spotify links, search, drag'n'drop, your saved playlists)
 
 ### how to use:
@@ -22,5 +22,4 @@ ___
 * [ ] import/export/save temp playlists created by balls
 * [x] icons in the searchbar to show if playlist/song 
 * [ ] polish the source code (or just yank it into the html file)
-* [ ] additional buttons to tweak the queue (remove duplicate songs, search/filter the queue etc)
-* [ ] drag drop to move songs in queue
+* [ ] BUG: on track end sometimes it skips songs (busy related)
