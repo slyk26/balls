@@ -20,11 +20,12 @@ function addSpotifyControls(track){
         ...track,
         execute: function (position_ms) {
             spotifyApi.play({uris: [this.id], position_ms: position_ms || 0}).then(() => {
-                busy = false;
                 updatePlayPauseIcon(false);
             }).catch(() => {
                 nextTrack(queuePos);
-            })
+            }).finally(() => {
+                busy = false;
+            });
         },
         play: function () {
             if (!!!spotifyState.playerLoaded || this.type !== 'track') return;
